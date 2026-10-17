@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/*
+ * PaperTrail AI design tokens.
+ * Every colour used by components comes from these variables (via the Tailwind theme
+ * below). Do not hardcode hex values in components.
+ */
+:root {
+  /* Brand */
+  --pt-academic: #183477;
+  --pt-interactive: #3563d9;
+  --pt-interactive-hover: #2a50b8;
+  --pt-ai: #6941c6;
+
+  /* Surfaces & text */
+  --pt-page: #f4f7fc;
+  --pt-card: #ffffff;
+  --pt-subtle: #eef2f9;
+  --pt-text: #172033;
+  --pt-text-secondary: #52627c;
+  --pt-border: #dfe6f1;
+  --pt-ring: #3563d9;
+
+  /* Verdicts — always paired with an icon and a text label, never colour alone */
+  --pt-supported: #18794e;
+  --pt-supported-soft: #e8f5ee;
+  --pt-contradicted: #b42332;
+  --pt-contradicted-soft: #fbeaec;
+  --pt-mixed: #6941c6;
+  --pt-mixed-soft: #f1ecfb;
+  --pt-inconclusive: #b7791f;
+  --pt-inconclusive-soft: #fdf4e3;
+  --pt-neutral-soft: #eef1f6;
+
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* shadcn/ui semantic tokens */
+  --color-background: var(--pt-page);
+  --color-foreground: var(--pt-text);
+  --color-card: var(--pt-card);
+  --color-card-foreground: var(--pt-text);
+  --color-popover: var(--pt-card);
+  --color-popover-foreground: var(--pt-text);
+  --color-primary: var(--pt-interactive);
+  --color-primary-hover: var(--pt-interactive-hover);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--pt-subtle);
+  --color-secondary-foreground: var(--pt-text);
+  --color-muted: var(--pt-subtle);
+  --color-muted-foreground: var(--pt-text-secondary);
+  --color-accent: var(--pt-subtle);
+  --color-accent-foreground: var(--pt-text);
+  --color-destructive: var(--pt-contradicted);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--pt-border);
+  --color-input: var(--pt-border);
+  --color-ring: var(--pt-ring);
+
+  /* PaperTrail tokens */
+  --color-academic: var(--pt-academic);
+  --color-ai: var(--pt-ai);
+  --color-supported: var(--pt-supported);
+  --color-supported-soft: var(--pt-supported-soft);
+  --color-contradicted: var(--pt-contradicted);
+  --color-contradicted-soft: var(--pt-contradicted-soft);
+  --color-mixed: var(--pt-mixed);
+  --color-mixed-soft: var(--pt-mixed-soft);
+  --color-inconclusive: var(--pt-inconclusive);
+  --color-inconclusive-soft: var(--pt-inconclusive-soft);
+  --color-neutral-soft: var(--pt-neutral-soft);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  :focus-visible {
+    outline: 2px solid var(--pt-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Comfortable reading for research excerpts */
+.prose-excerpt {
+  font-size: 0.975rem;
+  line-height: 1.7;
+  color: var(--pt-text);
+}
+
+.prose-excerpt mark {
+  background: #fff1b8;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print-friendly evidence reports */
+@media print {
+  @page {
+    margin: 18mm 16mm;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-flat {
+    box-shadow: none !important;
+    border-color: #cfd6e3 !important;
+  }
+  .print-break-avoid {
+    break-inside: avoid;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}

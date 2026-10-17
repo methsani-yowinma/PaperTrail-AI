@@ -1,0 +1,16 @@
+# Runtime dependencies (versions verified together on Python 3.12, October 2026).
+fastapi==0.143.3
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+pydantic-settings==2.16.0
+python-multipart==0.0.32
+httpx==0.28.1
+pymupdf==1.28.2
+numpy==2.5.4
+google-genai==2.31.0
+# PostgreSQL / Supabase back-end (DATABASE_BACKEND=postgres)
+psycopg[binary]==3.3.6
+psycopg-pool==3.3.3
+# Local embeddings. On machines without a GPU, install the CPU-only torch wheel first to
+# save ~2 GB:  pip install torch --index-url https://download.pytorch.org/whl/cpu
+sentence-transformers==6.1.0

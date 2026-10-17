@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest==9.1.1
+# Optional: runs tests/test_postgres_integration.py against a throw-away local
+# PostgreSQL + pgvector (no Docker or Supabase needed). Skipped when not installed.
+pgserver==0.1.4

@@ -1,0 +1,76 @@
+# ---------- Secrets & local configuration ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ---------- Node / Next.js ----------
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- Application data (never commit user documents) ----------
+backend/data/
+backend/storage/
+uploads/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# User-supplied PDFs anywhere in the repo, except small synthetic test fixtures
+*.pdf
+!backend/tests/fixtures/*.pdf
+!evaluation/datasets/**/*.pdf
+
+# ---------- Model artifacts & caches ----------
+.cache/
+hf_cache/
+*.safetensors
+*.bin
+*.onnx
+
+# ---------- Evaluation run output (keep the folder, not generated runs) ----------
+evaluation/reports/*
+!evaluation/reports/.gitkeep
+!evaluation/reports/README.md
+
+# ---------- Logs & test artifacts ----------
+logs/
+*.log
+test-results/
+playwright-report/
+
+# ---------- OS / editor ----------
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
