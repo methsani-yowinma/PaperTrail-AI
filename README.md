@@ -280,3 +280,4 @@ Full details: [docs/SECURITY.md](docs/SECURITY.md).
 - Durable job queue for processing and verification, and a shared rate-limit store.
 - Larger, expert-labelled evaluation sets and live-model benchmarks.
 - Citation export formats (BibTeX/RIS) and a server-rendered PDF report.
+# PaperTrail-AI
