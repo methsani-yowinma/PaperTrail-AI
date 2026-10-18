@@ -30,11 +30,11 @@ export function VerdictBadge({ verdict, size = "sm" }: { verdict: Verdict; size?
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border font-semibold whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-[4px] border font-semibold whitespace-nowrap",
         meta.text,
         meta.soft,
         meta.border,
-        size === "lg" ? "px-3 py-1.5 text-base [&_svg]:size-5" : "px-2 py-0.5 text-xs [&_svg]:size-3.5",
+        size === "lg" ? "px-2.5 py-1 text-[15px] [&_svg]:size-[18px]" : "px-1.5 py-0.5 text-[11.5px] [&_svg]:size-3.5",
       )}
     >
       <Icon aria-hidden />
@@ -47,7 +47,7 @@ export function RelationBadge({ relation }: { relation: PassageRelation }) {
   const meta = RELATIONS[relation];
   const Icon = meta.icon;
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-semibold", meta.text, meta.soft, meta.border)}>
+    <span className={cn("inline-flex items-center gap-1 rounded-[4px] border px-1.5 py-0.5 text-[11.5px] font-semibold", meta.text, meta.soft, meta.border)}>
       <Icon className="size-3.5" aria-hidden />
       {meta.label}
     </span>

@@ -83,7 +83,13 @@ class SupabaseAuthenticator:
             raise UnauthorizedError("Your session has expired. Please sign in again.", code="invalid_token")
         if response.status_code != 200:
             raise ServiceUnavailableError("The authentication service returned an error.", code="auth_unavailable")
-        data = response.json()
+        try:
+            data = response.json()
+        except ValueError:
+            data = None
+        if not isinstance(data, dict):
+            # e.g. SUPABASE_URL points at something other than the Supabase API.
+            raise ServiceUnavailableError("The authentication service returned an unexpected response.", code="auth_unavailable")
         user_id = data.get("id")
         if not user_id:
             raise UnauthorizedError("Invalid session.", code="invalid_token")

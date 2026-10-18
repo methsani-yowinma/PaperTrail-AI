@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import quote
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, Response, UploadFile, status
+from fastapi.concurrency import run_in_threadpool
 
 from app.api.deps import get_container, get_current_user
 from app.core.container import Container
@@ -33,7 +34,9 @@ async def upload_document(
     data = await file.read(limit + 1)
     if len(data) > limit:
         raise PayloadTooLargeError(f"The file is larger than the {container.settings.max_upload_size_mb} MB upload limit.")
-    doc = container.documents.upload(user.id, file.filename or "", file.content_type, data)
+    # Validation, hashing and storage (an HTTP call in Supabase mode) are blocking; keep them
+    # off the event loop so other requests are not stalled during an upload.
+    doc = await run_in_threadpool(container.documents.upload, user.id, file.filename or "", file.content_type, data)
     background.add_task(container.documents.process, user.id, doc.id)
     return to_out(doc)
 

@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Document" };
 
 export default function DocumentPage() {
   return (
-    <Suspense fallback={<Skeleton className="h-96 rounded-xl" />}>
+    <Suspense fallback={<Skeleton className="h-96 rounded-lg" />}>
       <DocumentDetail />
     </Suspense>
   );

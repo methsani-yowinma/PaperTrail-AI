@@ -110,6 +110,11 @@ class TestSupabaseAuthenticator:
         with pytest.raises(ServiceUnavailableError):
             self.make(handler).authenticate("Bearer t")
 
+    @pytest.mark.parametrize("response", [httpx.Response(200, text="<html>not the API</html>"), httpx.Response(200, json=[1])])
+    def test_unexpected_auth_response_is_a_clear_outage_not_a_crash(self, response):
+        with pytest.raises(ServiceUnavailableError):
+            self.make(lambda r: response).authenticate("Bearer t")
+
 
 def test_local_authenticator_is_single_fixed_user():
     assert LocalAuthenticator().authenticate(None).auth_mode == "local"

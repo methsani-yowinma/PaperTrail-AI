@@ -45,6 +45,15 @@ describe("/api/backend proxy route", () => {
     expect((await response.json()).error.code).toBe("backend_unreachable");
   });
 
+  it("forwards an explicit bearer token from API clients, but not malformed authorization headers", async () => {
+    const upstream = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    vi.stubGlobal("fetch", upstream);
+    await GET(new NextRequest("http://localhost:3000/api/backend/me", { headers: { authorization: "Bearer abc.def-ghi" } }), ctx(["me"]));
+    expect((upstream.mock.calls[0][1].headers as Headers).get("authorization")).toBe("Bearer abc.def-ghi");
+    await GET(new NextRequest("http://localhost:3000/api/backend/me", { headers: { authorization: "Basic dXNlcjpwYXNz" } }), ctx(["me"]));
+    expect((upstream.mock.calls[1][1].headers as Headers).get("authorization")).toBeNull();
+  });
+
   it("does not attach credentials in local mode", async () => {
     const upstream = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
     vi.stubGlobal("fetch", upstream);

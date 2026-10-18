@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Evidence Report" };
 
 export default function EvidenceReportPage() {
   return (
-    <Suspense fallback={<Skeleton className="h-[32rem] rounded-xl" />}>
+    <Suspense fallback={<Skeleton className="h-[32rem] rounded-lg" />}>
       <ReportPage />
     </Suspense>
   );

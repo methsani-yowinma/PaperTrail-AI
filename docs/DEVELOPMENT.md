@@ -129,10 +129,45 @@ Executed in the development environment (Windows 11, Python 3.12.3, Node 24.11):
 | 12 MB PDF through the Next.js proxy | stored byte-identical |
 | Evaluation runs (synthetic, oracle assessor) | see [EVALUATION.md](EVALUATION.md) |
 
+### Re-verification after context recovery (2026-10-18)
+
+The checks above were re-run after the project was resumed, and again after the fixes below.
+
+| Check | Before fixes | After fixes |
+|---|---|---|
+| Backend pytest (incl. PostgreSQL + pgvector via pgserver) | 154 passed, 1 skipped | 158 passed, 1 skipped |
+| Real embedding model test (`RUN_MODEL_TESTS=1`) | — | 1 passed |
+| Frontend Vitest | 36 passed | 37 passed |
+| `npm run typecheck`, `npm run lint` | clean | clean |
+| `npm run build` | succeeded, 18 routes | succeeded, 18 routes |
+| Live smoke test (local mode, real `bge-small` embeddings, no Gemini) | 25/25 | 25/25 |
+| Evaluation (oracle; oracle + 20 % noise) | matches recorded results | matches recorded results |
+| Gemini request serialization (real `google-genai` 2.31 SDK, HTTP layer intercepted, nothing sent) | — | valid `generateContent` body with `responseSchema` |
+
+Defects found and fixed:
+
+- **PostgreSQL:** a non-UUID ID in any path or in `document_ids` returned `503 database_error`
+  (PostgreSQL rejects the cast) instead of 404/422. Repository lookups now treat malformed IDs
+  as not found (`tests/test_postgres_integration.py::test_malformed_ids_return_404_not_database_error`).
+- **Proxy:** `/api/backend/*` dropped client `Authorization` headers, so
+  `smoke_test.py --token` could not work in Supabase mode.
+- **Explanation integrity:** the optional AI explanation could draw on passages whose citation
+  failed validation (and so were excluded from the verdict). It now uses only validated passages.
+- **Upload:** blocking validation and storage I/O ran on the event loop inside an `async` route;
+  this now runs in the threadpool.
+- **Supabase auth:** a non-JSON or non-object response from the auth endpoint caused a 500; it
+  is now a clear `auth_unavailable` (503).
+- **UI:** a failed assessment showed the same error message twice; the verify form allowed more
+  than the backend's 50-document limit.
+- **Evaluation:** `run_evaluation.py --help` crashed on Windows consoles (cp1252 encoding).
+
 **Not verified** (external credentials were not available):
 
 - Real Gemini API calls. The client is tested against a fake SDK client and mocked
-  responses; the `response_schema` structured-output request has not been sent to the live API.
+  responses. The real SDK has been confirmed to build the `response_schema` request offline,
+  but no request has been sent to, or accepted by, the live API.
+  `max_output_tokens` is 8192; with "thinking" models and a large `top_k`, check that responses
+  aren't truncated (truncated output leads to a repair call and then `UNASSESSED` passages).
 - Hosted Supabase: Auth token verification and Storage were tested against mocked HTTP
   transports; the migrations were tested on local PostgreSQL 16 + pgvector 0.6.2 with
   stand-in `auth`/`storage` schemas, not on a Supabase project.

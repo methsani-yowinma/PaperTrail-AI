@@ -16,6 +16,7 @@ const BACKEND = (process.env.API_BASE_URL ?? "http://127.0.0.1:8000").replace(/\
 const FORWARD_REQUEST_HEADERS = ["content-type", "accept", "x-request-id"];
 const FORWARD_RESPONSE_HEADERS = ["content-type", "content-disposition", "x-request-id", "cache-control"];
 const SEGMENT = /^[A-Za-z0-9._~-]+$/;
+const BEARER = /^Bearer [A-Za-z0-9._~+/=-]+$/;
 
 type Context = { params: Promise<{ path: string[] }> };
 
@@ -35,6 +36,10 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
+  // API clients without a browser session (e.g. scripts/smoke_test.py --token) may send their
+  // own bearer token; FastAPI verifies it exactly like a session token. A session cookie wins.
+  const clientAuthorization = request.headers.get("authorization");
+  if (clientAuthorization && BEARER.test(clientAuthorization)) headers.set("authorization", clientAuthorization);
   const supabase = await getServerSupabase();
   if (supabase) {
     const { data } = await supabase.auth.getSession();

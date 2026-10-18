@@ -353,6 +353,10 @@ def to_markdown(r: dict[str, Any]) -> str:
 
 
 def main() -> None:
+    # Windows consoles default to a legacy code page that cannot print the help text or report.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dataset", default=str(ROOT / "evaluation" / "datasets" / "synthetic_v1.json"))
     parser.add_argument("--assessor", choices=["oracle", "gemini"], default="oracle")

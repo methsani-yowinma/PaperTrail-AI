@@ -21,12 +21,12 @@ const password = z.string().min(8, "Use at least 8 characters.");
 
 export function AuthCard({ title, description, children, footer }: { title: string; description: string; children: ReactNode; footer?: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
+    <div className="bg-graph flex min-h-screen flex-col items-center justify-center px-4 py-12">
       <Link href="/" className="mb-8">
         <Logo />
       </Link>
-      <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-        <h1 className="text-xl font-semibold">{title}</h1>
+      <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-raised sm:p-8">
+        <h1 className="text-xl font-semibold tracking-tight text-academic">{title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         <div className="mt-6">{authEnabled ? children : <LocalModeNotice />}</div>
       </div>

@@ -33,6 +33,7 @@ export function InvestigationsList() {
   return (
     <>
       <PageHeader
+        eyebrow="History"
         title="Investigations"
         description="Every claim you have checked, with its sources and latest verdict."
         actions={
@@ -49,7 +50,7 @@ export function InvestigationsList() {
       </div>
 
       {list.error && <ErrorState message={list.error.message} requestId={list.error.requestId} onRetry={list.reload} />}
-      {list.loading && !list.data && <Skeleton className="h-64 rounded-xl" />}
+      {list.loading && !list.data && <Skeleton className="h-64 rounded-lg" />}
       {list.data && list.data.items.length === 0 && (
         <EmptyState
           icon={debounced ? Search : History}
@@ -66,23 +67,37 @@ export function InvestigationsList() {
       )}
       {list.data && list.data.items.length > 0 && (
         <>
-          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-            {list.data.items.map((inv) => (
-              <li key={inv.id}>
-                <Link href={`/investigations/${inv.id}`} className="flex flex-col gap-2 px-4 py-3.5 hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">{inv.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDateTime(inv.created_at)} · {pluralize(inv.documents.length, "source")}
-                    </p>
-                  </div>
-                  <div className="shrink-0">
-                    {inv.overall_verdict ? <VerdictBadge verdict={inv.overall_verdict} /> : <InvestigationStatusBadge status={inv.status} />}
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-panel">
+            <div className="hidden grid-cols-[minmax(0,1fr)_90px_150px_150px] gap-4 border-b border-border bg-muted/40 px-4 py-2 md:grid" aria-hidden>
+              <span className="eyebrow">Claim</span>
+              <span className="eyebrow">Sources</span>
+              <span className="eyebrow">Verdict</span>
+              <span className="eyebrow">Created</span>
+            </div>
+            <ul className="divide-y divide-rule">
+              {list.data.items.map((inv) => (
+                <li key={inv.id}>
+                  <Link
+                    href={`/investigations/${inv.id}`}
+                    className="grid gap-2 px-4 py-3.5 transition-colors hover:bg-primary/[0.03] md:grid-cols-[minmax(0,1fr)_90px_150px_150px] md:items-center md:gap-4"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-[14px] font-medium">{inv.title}</p>
+                      {inv.title !== inv.claim_text && <p className="truncate text-xs text-muted-foreground">{inv.claim_text}</p>}
+                    </div>
+                    <span className="font-mono text-[12px] text-muted-foreground">
+                      <span className="md:hidden">{pluralize(inv.documents.length, "source")}</span>
+                      <span className="hidden md:inline">{inv.documents.length}</span>
+                    </span>
+                    <div>
+                      {inv.overall_verdict ? <VerdictBadge verdict={inv.overall_verdict} /> : <InvestigationStatusBadge status={inv.status} />}
+                    </div>
+                    <span className="font-mono text-[11.5px] text-muted-foreground">{formatDateTime(inv.created_at)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
           <Pager total={list.data.total} offset={offset} onChange={setOffset} />
         </>
       )}

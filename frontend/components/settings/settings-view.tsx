@@ -35,19 +35,20 @@ export function SettingsView() {
   return (
     <>
       <PageHeader
+        eyebrow="System"
         title="Settings"
         description="Current configuration of this PaperTrail AI installation. Server settings are managed through environment variables, not in the browser."
       />
       {status.error && <ErrorState message={status.error.message} onRetry={status.reload} />}
-      {!s && !status.error && <Skeleton className="h-80 rounded-xl" />}
+      {!s && !status.error && <Skeleton className="h-80 rounded-lg" />}
       {s && (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-rule">
               <CardTitle>Account and access</CardTitle>
               <CardDescription>How users are identified and how data is isolated.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
+            <CardContent className="space-y-2.5 pt-4 text-sm">
               <Row label="Authentication">
                 {s.auth_mode === "supabase" ? <Badge tone="success">Supabase Auth</Badge> : <Badge tone="warning">Local development mode (no authentication)</Badge>}
               </Row>
@@ -64,11 +65,11 @@ export function SettingsView() {
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-rule">
               <CardTitle>Claim assessment</CardTitle>
               <CardDescription>Gemini judges individual passages; the verdict itself is computed by rules.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
+            <CardContent className="space-y-2.5 pt-4 text-sm">
               <Row label="Status">
                 {s.assessment_configured ? <Badge tone="success">Configured</Badge> : <Badge tone="warning">Not configured</Badge>}
               </Row>
@@ -93,10 +94,10 @@ export function SettingsView() {
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-rule">
               <CardTitle>Document processing</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
+            <CardContent className="space-y-2.5 pt-4 text-sm">
               <Row label="Embedding model">{s.embedding_model}</Row>
               <Row label="Vector dimension">{s.embedding_dimension}</Row>
               <Row label="Embedding provider">
@@ -114,9 +115,9 @@ export function SettingsView() {
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className="flex flex-col gap-0.5 border-b border-rule pb-2.5 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium sm:text-right">{children}</span>
+      <span className="font-medium break-all sm:text-right">{children}</span>
     </div>
   );
 }

@@ -254,3 +254,21 @@ def test_verify_rate_limit(make_client, fake_llm, limit):
     assert verify(client, inv_id).status_code == 200
     limited = verify(client, inv_id)
     assert limited.status_code == 429 and limited.json()["error"]["code"] == "rate_limited"
+
+
+def test_explanation_never_uses_passages_with_invalid_citations(client, fake_llm, monkeypatch):
+    from app.services import investigation_service
+    from app.services.citation_validation_service import CitationCheck
+
+    doc = add_doc(client, DROPOUT_SUPPORT, "Support Paper")
+    inv = create(client, [doc]).json()
+    monkeypatch.setattr(
+        investigation_service, "validate_citation", lambda **_: CitationCheck(False, ["forced invalid for test"])
+    )
+    assessment = verify(client, inv["id"]).json()["assessment"]
+    # R1: nothing usable, so INCONCLUSIVE, and the explanation must come from the rule template,
+    # not from a model call over passages the verdict was not allowed to use.
+    assert assessment["verdict"] == "INCONCLUSIVE"
+    assert assessment["explanation_source"] == "template"
+    assert [c["schema"] for c in fake_llm.calls] == ["LLMAssessmentResponse"]
+    assert all(not e["citation"]["valid"] for e in assessment["evidence"])

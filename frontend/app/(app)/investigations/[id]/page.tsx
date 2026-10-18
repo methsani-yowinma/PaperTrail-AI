@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Investigation" };
 
 export default function InvestigationPage() {
   return (
-    <Suspense fallback={<Skeleton className="h-96 rounded-xl" />}>
+    <Suspense fallback={<Skeleton className="h-96 rounded-lg" />}>
       <InvestigationDetail />
     </Suspense>
   );

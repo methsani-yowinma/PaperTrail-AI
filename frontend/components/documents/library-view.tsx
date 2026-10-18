@@ -42,6 +42,7 @@ export function LibraryView() {
   return (
     <>
       <PageHeader
+        eyebrow="Corpus"
         title="Research Library"
         description="Upload research papers and technical documents. Each one is validated, split into page-anchored passages and indexed for search."
       />
@@ -58,15 +59,15 @@ export function LibraryView() {
                 aria-label="Search documents"
               />
             </div>
-            <div className="flex flex-wrap gap-1" role="group" aria-label="Filter by status">
+            <div className="flex flex-wrap rounded-md border border-border bg-card p-0.5" role="group" aria-label="Filter by status">
               {STATUS_FILTERS.map((f) => (
                 <button
                   key={f.value || "all"}
                   type="button"
                   onClick={() => setStatus(f.value)}
                   aria-pressed={status === f.value}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                    status === f.value ? "bg-academic text-white" : "bg-card text-muted-foreground hover:bg-muted border border-border"
+                  className={`rounded-[5px] px-2.5 py-1 text-xs font-medium transition-colors ${
+                    status === f.value ? "bg-academic text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
                   {f.label}
@@ -79,7 +80,7 @@ export function LibraryView() {
           {docs.loading && !docs.data && (
             <div className="space-y-3">
               {[0, 1, 2].map((i) => (
-                <Skeleton key={i} className="h-24 rounded-xl" />
+                <Skeleton key={i} className="h-24 rounded-lg" />
               ))}
             </div>
           )}
@@ -92,15 +93,17 @@ export function LibraryView() {
           )}
           {docs.data && docs.data.items.length > 0 && (
             <>
-              <p className="text-sm text-muted-foreground">{pluralize(docs.data.total, "document")}</p>
-              <ul className="space-y-3">
+              <p className="eyebrow">{pluralize(docs.data.total, "document")}</p>
+              <ul className="divide-y divide-rule overflow-hidden rounded-lg border border-border bg-card shadow-panel">
                 {docs.data.items.map((doc) => (
-                  <li key={doc.id} className="rounded-xl border border-border bg-card p-4">
+                  <li key={doc.id} className="p-4 transition-colors hover:bg-muted/30">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex min-w-0 gap-3">
-                        <FileText className="mt-0.5 size-5 shrink-0 text-academic" aria-hidden />
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-border bg-muted/60 text-academic">
+                          <FileText className="size-[18px]" aria-hidden />
+                        </span>
                         <div className="min-w-0">
-                          <Link href={`/library/${doc.id}`} className="font-medium hover:text-primary hover:underline">
+                          <Link href={`/library/${doc.id}`} className="rounded-sm leading-snug font-semibold text-foreground hover:text-primary hover:underline">
                             {documentTitle(doc)}
                           </Link>
                           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -108,8 +111,9 @@ export function LibraryView() {
                               .filter(Boolean)
                               .join(" · ")}
                           </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
+                          <p className="mt-1 font-mono text-[11px] text-muted-foreground">
                             {doc.original_filename} · uploaded {formatDate(doc.created_at)}
+                            {doc.processing_status === "completed" ? ` · ${pluralize(doc.chunk_count, "passage")} indexed` : ""}
                           </p>
                           {doc.processing_error && <p className="mt-1.5 text-sm text-contradicted">{doc.processing_error}</p>}
                           {doc.extraction_warnings.length > 0 && (

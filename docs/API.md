@@ -13,7 +13,7 @@ The browser reaches these endpoints through the Next.js route handler:
 - **Authentication:** `Authorization: Bearer <Supabase access token>` when `AUTH_MODE=supabase`.
   In local mode every request acts as the single local user.
 - **Authorization:** every resource is scoped to its owner. Another user's ID returns **404**
-  (indistinguishable from "does not exist").
+  (indistinguishable from "does not exist"). A malformed (non-UUID) ID also returns **404**.
 - **Request IDs:** send `X-Request-ID` (8–64 alphanumeric/dash characters) or one is generated.
   It is returned in the `X-Request-ID` response header and in error bodies.
 - **Pagination:** `limit` and `offset` query parameters; responses are

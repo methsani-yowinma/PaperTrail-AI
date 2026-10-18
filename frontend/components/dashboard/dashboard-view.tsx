@@ -23,6 +23,7 @@ export function DashboardView() {
   return (
     <>
       <PageHeader
+        eyebrow="Workspace overview"
         title="Dashboard"
         description="Your research library and recent investigations at a glance."
         actions={
@@ -37,11 +38,11 @@ export function DashboardView() {
       {loading && !data && <DashboardSkeleton />}
       {data && (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Stat label="Documents" value={data.documents_total} icon={FolderOpen} href="/library" />
-            <Stat label="Investigations" value={data.investigations_total} icon={History} href="/investigations" />
-            <Stat label="Evidence reports" value={data.reports_total} icon={FileText} href="/reports" />
-          </div>
+          <dl className="grid overflow-hidden rounded-lg border border-border bg-rule shadow-panel sm:grid-cols-3 sm:gap-px">
+            <Stat label="Documents" value={data.documents_total} icon={FolderOpen} href="/library" note="in your research library" />
+            <Stat label="Investigations" value={data.investigations_total} icon={History} href="/investigations" note="claims examined" />
+            <Stat label="Evidence reports" value={data.reports_total} icon={FileText} href="/reports" note="completed snapshots" />
+          </dl>
 
           {data.documents_total === 0 ? (
             <EmptyState
@@ -57,13 +58,13 @@ export function DashboardView() {
               }
             />
           ) : (
-            <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+            <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
               <Card>
-                <CardHeader className="flex-row items-center justify-between">
+                <CardHeader className="flex-row items-center justify-between border-b border-rule">
                   <CardTitle>Recent investigations</CardTitle>
-                  <Link href="/investigations" className="text-sm text-primary hover:underline">View all</Link>
+                  <Link href="/investigations" className="rounded-sm text-[13px] text-primary hover:underline">View all</Link>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-1">
                   {data.recent_investigations.length === 0 ? (
                     <p className="py-6 text-center text-sm text-muted-foreground">
                       No investigations yet. <Link href="/verify" className="text-primary hover:underline">Verify your first claim</Link>.
@@ -72,10 +73,10 @@ export function DashboardView() {
                     <ul className="divide-y divide-border">
                       {data.recent_investigations.map((inv) => (
                         <li key={inv.id}>
-                          <Link href={`/investigations/${inv.id}`} className="flex items-start justify-between gap-3 py-3 hover:bg-muted/40 -mx-2 px-2 rounded-md">
+                          <Link href={`/investigations/${inv.id}`} className="-mx-2 flex items-start justify-between gap-3 rounded-md px-2 py-3 transition-colors hover:bg-muted/50">
                             <div className="min-w-0">
-                              <p className="truncate font-medium">{inv.title}</p>
-                              <p className="text-xs text-muted-foreground">{formatDate(inv.created_at)} · {inv.documents.length} source(s)</p>
+                              <p className="truncate text-[14px] font-medium">{inv.title}</p>
+                              <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{formatDate(inv.created_at)} · {inv.documents.length} source(s)</p>
                             </div>
                             {inv.overall_verdict ? <VerdictBadge verdict={inv.overall_verdict} /> : <InvestigationStatusBadge status={inv.status} />}
                           </Link>
@@ -88,10 +89,10 @@ export function DashboardView() {
 
               <div className="space-y-6">
                 <Card>
-                  <CardHeader>
+                  <CardHeader className="border-b border-rule">
                     <CardTitle>Document processing</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 pt-3">
                     <ul className="flex flex-wrap gap-2" aria-label="Documents by status">
                       {(Object.keys(PROCESSING) as ProcessingStatus[])
                         .filter((s) => data.documents_by_status[s])
@@ -116,11 +117,11 @@ export function DashboardView() {
                 </Card>
 
                 <Card>
-                  <CardHeader className="flex-row items-center justify-between">
+                  <CardHeader className="flex-row items-center justify-between border-b border-rule">
                     <CardTitle>Recent reports</CardTitle>
-                    <Link href="/reports" className="text-sm text-primary hover:underline">View all</Link>
+                    <Link href="/reports" className="rounded-sm text-[13px] text-primary hover:underline">View all</Link>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-1">
                     {data.recent_reports.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Reports appear after an investigation is verified.</p>
                     ) : (
@@ -146,15 +147,20 @@ export function DashboardView() {
   );
 }
 
-function Stat({ label, value, icon: Icon, href }: { label: string; value: number; icon: typeof FolderOpen; href: string }) {
+function Stat({ label, value, icon: Icon, href, note }: { label: string; value: number; icon: typeof FolderOpen; href: string; note: string }) {
   return (
-    <Link href={href} className="group rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">{label}</span>
-        <Icon className="size-4 text-muted-foreground group-hover:text-primary" aria-hidden />
-      </div>
-      <p className="mt-2 text-3xl font-semibold tracking-tight text-academic">{value}</p>
-    </Link>
+    <div className="bg-card">
+      <Link href={href} className="group flex h-full flex-col px-5 py-4 transition-colors hover:bg-primary/[0.03]">
+        <dt className="flex items-center justify-between">
+          <span className="eyebrow">{label}</span>
+          <Icon className="size-4 text-muted-foreground transition-colors group-hover:text-primary" aria-hidden />
+        </dt>
+        <dd className="mt-2 flex items-baseline gap-2">
+          <span className="tabular font-mono text-3xl font-semibold tracking-tight text-academic">{value}</span>
+          <span className="text-xs text-muted-foreground">{note}</span>
+        </dd>
+      </Link>
+    </div>
   );
 }
 
@@ -163,10 +169,10 @@ function DashboardSkeleton() {
     <div className="space-y-6" aria-label="Loading dashboard">
       <div className="grid gap-4 sm:grid-cols-3">
         {[0, 1, 2].map((i) => (
-          <Skeleton key={i} className="h-24 rounded-xl" />
+          <Skeleton key={i} className="h-24 rounded-lg" />
         ))}
       </div>
-      <Skeleton className="h-64 rounded-xl" />
+      <Skeleton className="h-64 rounded-lg" />
     </div>
   );
 }

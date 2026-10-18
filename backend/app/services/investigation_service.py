@@ -286,10 +286,15 @@ class InvestigationService:
 
         result = aggregate_verdict(verdict_inputs, retrieved_count=len(passages))
         assessed = [a for a in outcome.assessments.values()]
+        # The explanation may only draw on passages whose citation validated, i.e. the same
+        # evidence the verdict was allowed to use.
+        valid_labels = {v.passage_label for v in verdict_inputs if v.citation_valid}
+        explainable_items = [a for a in assessed if a.label in valid_labels]
         # Only ask for a prose explanation when there is relevant, validated evidence to explain.
-        explainable = any(a.relation != PassageRelation.NOT_RELEVANT for a in assessed) and bool(verdict_inputs)
+        explainable = any(a.relation != PassageRelation.NOT_RELEVANT for a in explainable_items)
         explanation = (
-            self._assessor.explain(inv.claim_text, result.verdict.value, result.reasons, assessed) if explainable else None
+            self._assessor.explain(inv.claim_text, result.verdict.value, result.reasons, explainable_items)
+            if explainable else None
         )
         llm_calls = outcome.llm_calls + (1 if explainable else 0)
         explanation_source = "model" if explanation else "template"

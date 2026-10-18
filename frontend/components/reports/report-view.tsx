@@ -20,15 +20,15 @@ export function ReportPage() {
   const report = useApi(() => api.getReport(id), [id]);
 
   if (report.error) return <ErrorState message={report.error.message} requestId={report.error.requestId} onRetry={report.reload} />;
-  if (!report.data) return <Skeleton className="h-[32rem] rounded-xl" />;
+  if (!report.data) return <Skeleton className="h-[32rem] rounded-lg" />;
   return <ReportDocument report={report.data} />;
 }
 
 function Section({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
   return (
     <section className="print-break-avoid space-y-3">
-      <h2 className="text-lg font-semibold text-academic">
-        <span className="mr-2 text-muted-foreground">{number}.</span>
+      <h2 className="flex items-baseline gap-3 border-b border-rule pb-2 text-lg font-semibold tracking-tight text-academic">
+        <span className="font-mono text-[12px] font-medium text-primary">{String(number).padStart(2, "0")}</span>
         {title}
       </h2>
       {children}
@@ -63,11 +63,11 @@ export function ReportDocument({ report }: { report: Report }) {
         </div>
       </div>
 
-      <article className="print-flat space-y-8 rounded-2xl border border-border bg-card p-6 sm:p-10">
+      <article className="print-flat space-y-8 rounded-lg border border-border bg-card p-6 sm:p-10">
         <header className="space-y-4 border-b border-border pb-6">
           <div className="flex items-center justify-between gap-4">
             <Logo />
-            <span className="text-xs text-muted-foreground">Evidence report</span>
+            <span className="eyebrow">Evidence report</span>
           </div>
           <Section number={1} title="Investigation">
             <p className="text-2xl font-semibold tracking-tight">{report.title}</p>

@@ -32,12 +32,18 @@
   --pt-inconclusive-soft: #fdf4e3;
   --pt-neutral-soft: #eef1f6;
 
-  --radius: 0.75rem;
+  /* Research-workbench identity: hairline rules, graph-paper texture, restrained depth */
+  --pt-rule: #e6ebf4;
+  --pt-grid: rgba(24, 52, 119, 0.055);
+  --pt-shadow-panel: 0 1px 0 rgba(23, 32, 51, 0.03), 0 1px 3px rgba(23, 32, 51, 0.05);
+  --pt-shadow-raised: 0 1px 0 rgba(23, 32, 51, 0.04), 0 8px 24px -12px rgba(24, 52, 119, 0.22);
+
+  --radius: 0.5rem;
 }
 
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;
 
   /* shadcn/ui semantic tokens */
   --color-background: var(--pt-page);
@@ -73,6 +79,10 @@
   --color-inconclusive: var(--pt-inconclusive);
   --color-inconclusive-soft: var(--pt-inconclusive-soft);
   --color-neutral-soft: var(--pt-neutral-soft);
+  --color-rule: var(--pt-rule);
+
+  --shadow-panel: var(--pt-shadow-panel);
+  --shadow-raised: var(--pt-shadow-raised);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -95,6 +105,38 @@
     outline: 2px solid var(--pt-ring);
     outline-offset: 2px;
   }
+}
+
+/* Graph-paper texture for analytical surfaces (landing hero, workspace headers) */
+.bg-graph {
+  background-color: var(--pt-page);
+  background-image:
+    linear-gradient(var(--pt-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pt-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
+}
+
+/* Workspace pane: a bordered instrument panel with a ruled header */
+.pane {
+  border: 1px solid var(--pt-border);
+  border-radius: var(--radius);
+  background: var(--pt-card);
+  box-shadow: var(--pt-shadow-panel);
+}
+
+/* Small mono label used for section indices, metadata keys and IDs */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pt-text-secondary);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Comfortable reading for research excerpts */

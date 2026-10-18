@@ -23,14 +23,19 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           side === "left"
-            ? "fixed inset-y-0 left-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-card shadow-xl"
-            : "fixed top-1/2 left-1/2 z-50 grid max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-xl",
+            ? "fixed inset-y-0 left-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-white/10 bg-academic text-white shadow-xl"
+            : "fixed top-1/2 left-1/2 z-50 grid max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-raised",
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
+        <DialogPrimitive.Close
+          className={cn(
+            "absolute top-4 right-4 rounded-md p-1",
+            side === "left" ? "text-white/70 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
           <X className="size-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>

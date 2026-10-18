@@ -21,7 +21,10 @@ Every data access is scoped to the authenticated user.
 
 ## Authentication
 
-- **Supabase mode:** the Next.js route handler forwards the user's access token. FastAPI
+- **Supabase mode:** the Next.js route handler forwards the user's access token from the
+  session cookie. Without a session, it forwards a well-formed `Authorization: Bearer` header
+  sent by an API client (for example `scripts/smoke_test.py --token`). Cookies are never
+  forwarded, and the session token wins when both are present. FastAPI
   verifies it with Supabase Auth's `GET /auth/v1/user` (no custom JWT verification).
   Successful verifications are cached for 60 s, keyed by the token's SHA-256. `proxy.ts`
   refreshes sessions with `getClaims()`, which validates the JWT.

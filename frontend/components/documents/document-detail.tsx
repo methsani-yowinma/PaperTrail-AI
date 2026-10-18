@@ -53,7 +53,7 @@ export function DocumentDetail() {
   }, [doc.data?.page_labels, page]);
 
   if (doc.error) return <ErrorState message={doc.error.message} requestId={doc.error.requestId} onRetry={doc.reload} />;
-  if (!doc.data) return <Skeleton className="h-96 rounded-xl" />;
+  if (!doc.data) return <Skeleton className="h-96 rounded-lg" />;
   const d = doc.data;
   const pageCount = d.page_count ?? 0;
 
@@ -64,8 +64,9 @@ export function DocumentDetail() {
       </Link>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight">{documentTitle(d)}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{d.original_filename}</p>
+          <p className="eyebrow mb-2 text-primary">Document</p>
+          <h1 className="text-[26px] leading-tight font-semibold tracking-tight text-academic">{documentTitle(d)}</h1>
+          <p className="mt-1 font-mono text-[12px] text-muted-foreground">{d.original_filename}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ProcessingBadge status={d.processing_status} />

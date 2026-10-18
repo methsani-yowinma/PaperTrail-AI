@@ -7,7 +7,7 @@ import { FlaskConical, LogOut, Menu, Plus, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/layout/logo";
-import { NAV_ITEMS } from "@/components/layout/nav-items";
+import { NAV_GROUPS } from "@/components/layout/nav-items";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { authEnabled } from "@/lib/config";
@@ -16,25 +16,38 @@ import { cn } from "@/lib/utils";
 
 function NavList({ pathname, onNavigate }: { pathname: string | null; onNavigate?: () => void }) {
   return (
-    <nav aria-label="Main" className="flex flex-col gap-1">
-      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-        const active = pathname !== null && (pathname === href || pathname.startsWith(`${href}/`));
-        return (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              active ? "bg-primary/10 text-academic" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <Icon className={cn("size-[18px]", active && "text-primary")} aria-hidden />
-            {label}
-          </Link>
-        );
-      })}
+    <nav aria-label="Main" className="flex flex-col gap-5">
+      {NAV_GROUPS.map((group) => (
+        <div key={group.label}>
+          <p className="mb-1.5 px-3 font-mono text-[10.5px] font-medium tracking-[0.14em] text-white/45 uppercase">{group.label}</p>
+          <ul className="flex flex-col gap-0.5">
+            {group.items.map(({ href, label, icon: Icon }) => {
+              const active = pathname !== null && (pathname === href || pathname.startsWith(`${href}/`));
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={onNavigate}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "relative flex items-center gap-3 rounded-md px-3 py-[7px] text-[13.5px] font-medium transition-colors focus-visible:outline-white",
+                      active ? "bg-white/[0.12] text-white" : "text-white/70 hover:bg-white/[0.06] hover:text-white",
+                    )}
+                  >
+                    {/* Active marker: a thin rule, echoing the citation trail in the logo */}
+                    <span
+                      aria-hidden
+                      className={cn("absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-full", active ? "bg-white" : "bg-transparent")}
+                    />
+                    <Icon className={cn("size-[17px]", active ? "text-white" : "text-white/55")} aria-hidden />
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
     </nav>
   );
 }
@@ -54,19 +67,26 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <div className="flex h-full flex-col gap-6 p-4">
-      <Link href="/dashboard" onClick={onNavigate} className="px-1 py-1">
-        <Logo />
+    <div className="flex h-full flex-col gap-6 px-3 py-4">
+      <Link href="/dashboard" onClick={onNavigate} className="px-2 py-1 focus-visible:outline-white">
+        <Logo tone="light" />
       </Link>
-      <Button asChild className="w-full justify-start">
-        <Link href="/verify" onClick={onNavigate}>
-          <Plus /> New Investigation
-        </Link>
-      </Button>
-      <NavLinks onNavigate={onNavigate} />
-      <p className="mt-auto px-1 text-xs leading-relaxed text-muted-foreground">
-        Verdicts reflect only the documents you select. They do not establish scientific truth.
-      </p>
+      <Link
+        href="/verify"
+        onClick={onNavigate}
+        className="flex items-center gap-2 rounded-md border border-white/15 bg-white/[0.06] px-3 py-2 text-[13.5px] font-medium whitespace-nowrap text-white transition-colors hover:border-white/30 hover:bg-white/[0.1] focus-visible:outline-white"
+      >
+        <Plus className="size-4" aria-hidden /> New Investigation
+      </Link>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <NavLinks onNavigate={onNavigate} />
+      </div>
+      <div className="rounded-md border border-white/10 px-3 py-2.5">
+        <p className="font-mono text-[10.5px] tracking-[0.14em] text-white/45 uppercase">Scope</p>
+        <p className="mt-1 text-[12px] leading-relaxed text-white/70">
+          Verdicts reflect only the documents you select. They do not establish scientific truth.
+        </p>
+      </div>
     </div>
   );
 }
@@ -85,7 +105,7 @@ function UserMenu() {
 
   if (!authEnabled) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-md border border-inconclusive/30 bg-inconclusive-soft px-2.5 py-1 text-xs font-medium text-inconclusive">
+      <span className="inline-flex items-center gap-1.5 rounded-[4px] border border-inconclusive/30 bg-inconclusive-soft px-2 py-0.5 font-mono text-[11px] font-medium text-inconclusive">
         <FlaskConical className="size-3.5" aria-hidden /> Local mode
       </span>
     );
@@ -130,7 +150,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2">
         Skip to content
       </a>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-border bg-card lg:block no-print">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 bg-academic text-white lg:block no-print">
         <SidebarBody />
       </aside>
 
@@ -141,11 +161,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </DialogContent>
       </Dialog>
 
-      <div className="lg:pl-64">
+      <div className="lg:pl-60">
         <div className="no-print">
           <LocalModeBanner />
         </div>
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-card/95 px-4 backdrop-blur sm:px-6 no-print">
+        <header className="sticky top-0 z-20 flex h-12 items-center gap-3 border-b border-border bg-card/90 px-4 backdrop-blur sm:px-6 no-print">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation">
             <Menu />
           </Button>
@@ -156,7 +176,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <UserMenu />
           </div>
         </header>
-        <main id="main" className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <main id="main" className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           {children}
         </main>
       </div>

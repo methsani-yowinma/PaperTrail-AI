@@ -59,6 +59,16 @@ def chunk_id_for(document_id: str, chunk: NewChunk, embedding_model: str) -> str
     return str(uuid.uuid5(_CHUNK_NAMESPACE, key))
 
 
+def is_uuid(value: str) -> bool:
+    """IDs are UUIDs. PostgreSQL rejects other text for uuid columns with an error, so lookups
+    treat a malformed ID as "not found" instead of sending it to the database."""
+    try:
+        uuid.UUID(str(value))
+    except ValueError:
+        return False
+    return True
+
+
 @dataclass(frozen=True)
 class SearchHit:
     chunk_id: str
@@ -175,10 +185,13 @@ class Repository(ABC):
         return doc
 
     def get_document(self, owner_id: str, document_id: str) -> DocumentRecord | None:
+        if not is_uuid(document_id):
+            return None
         rows = self._query(f"SELECT {DOCUMENT_COLUMNS} FROM documents WHERE id = ? AND owner_id = ?", (document_id, owner_id))
         return self._document(rows[0]) if rows else None
 
     def get_documents(self, owner_id: str, document_ids: list[str]) -> list[DocumentRecord]:
+        document_ids = [d for d in document_ids if is_uuid(d)]
         if not document_ids:
             return []
         rows = self._query(
@@ -326,6 +339,7 @@ class Repository(ABC):
 
     # ---- chunks -------------------------------------------------------------------------
     def get_chunks(self, owner_id: str, chunk_ids: list[str]) -> list[ChunkRecord]:
+        chunk_ids = [c for c in chunk_ids if is_uuid(c)]
         if not chunk_ids:
             return []
         rows = self._query(
@@ -387,6 +401,8 @@ class Repository(ABC):
         return inv
 
     def get_investigation(self, owner_id: str, investigation_id: str) -> InvestigationRecord | None:
+        if not is_uuid(investigation_id):
+            return None
         rows = self._query(
             f"SELECT {self._INV_COLUMNS} FROM investigations WHERE id = ? AND owner_id = ?", (investigation_id, owner_id)
         )
@@ -474,6 +490,8 @@ class Repository(ABC):
         return AssessmentRecord.model_validate(self._decode_row(row, ASSESSMENT_JSON))
 
     def get_assessment(self, owner_id: str, assessment_id: str) -> AssessmentRecord | None:
+        if not is_uuid(assessment_id):
+            return None
         rows = self._query(
             f"SELECT {self._ASSESS_COLUMNS} FROM claim_assessments WHERE id = ? AND owner_id = ?", (assessment_id, owner_id)
         )

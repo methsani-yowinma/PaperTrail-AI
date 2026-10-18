@@ -170,3 +170,15 @@ def test_storage_bucket_is_private(database_url):
             "select public, file_size_limit, allowed_mime_types from storage.buckets where id = 'documents'"
         ).fetchone()
     assert public is False and limit == 26214400 and mimes == ["application/pdf"]
+
+
+def test_malformed_ids_return_404_not_database_error(pg_client):
+    # PostgreSQL rejects non-UUID text for uuid columns; that must not surface as a 5xx.
+    for path in ("/api/v1/documents/not-a-uuid", "/api/v1/investigations/not-a-uuid", "/api/v1/reports/not-a-uuid",
+                 "/api/v1/documents/not-a-uuid/chunks", "/api/v1/investigations/not-a-uuid/evidence"):
+        response = pg_client.get(path, headers=AUTH_ALICE)
+        assert response.status_code == 404, (path, response.status_code, response.text)
+    created = pg_client.post("/api/v1/investigations", headers=AUTH_ALICE, json={
+        "claim_text": "Dropout reduces overfitting.", "document_ids": ["not-a-uuid"],
+    })
+    assert created.status_code == 422 and created.json()["error"]["code"] in ("unknown_documents", "validation_failed")

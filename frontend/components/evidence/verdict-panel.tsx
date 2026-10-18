@@ -1,9 +1,15 @@
-import { Info, Sparkles } from "lucide-react";
+import { Info, ListChecks, Sparkles } from "lucide-react";
 
-import { VerdictBadge } from "@/components/common/status-badges";
 import { cn } from "@/lib/utils";
 import { VERDICTS } from "@/lib/verdict";
 import type { EvidenceSummary, Verdict } from "@/types/api";
+
+const VERDICT_RULE: Record<Verdict, string> = {
+  SUPPORTED: "bg-supported",
+  CONTRADICTED: "bg-contradicted",
+  MIXED_EVIDENCE: "bg-mixed",
+  INCONCLUSIVE: "bg-inconclusive",
+};
 
 export function VerdictPanel({
   verdict,
@@ -19,45 +25,25 @@ export function VerdictPanel({
   summary: EvidenceSummary;
 }) {
   const meta = VERDICTS[verdict];
+  const Icon = meta.icon;
   const sources = summary.independent_sources;
   return (
-    <section aria-label="Overall verdict" className={cn("print-flat rounded-2xl border p-5 sm:p-6", meta.border, meta.soft)}>
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-medium text-muted-foreground">Overall verdict</span>
-        <VerdictBadge verdict={verdict} size="lg" />
+    <section aria-label="Overall verdict" className={cn("print-flat relative overflow-hidden rounded-lg border bg-card shadow-panel", meta.border)}>
+      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", VERDICT_RULE[verdict])} />
+
+      <div className={cn("flex flex-col gap-4 py-5 pr-5 pl-6 sm:flex-row sm:items-start sm:pr-6", meta.soft)}>
+        <span className={cn("flex size-12 shrink-0 items-center justify-center rounded-md border bg-card", meta.border, meta.text)}>
+          <Icon className="size-6" aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <p className="eyebrow">Finding · within the selected documents</p>
+          <h2 className={cn("mt-1 text-2xl font-semibold tracking-tight", meta.text)}>{meta.label}</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-foreground/80">{meta.description}</p>
+        </div>
       </div>
-      <p className="mt-2 text-sm text-muted-foreground">{meta.description}</p>
-
-      {explanation && (
-        <div className="mt-4 rounded-xl bg-card/80 p-4">
-          <p className="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-            {explanationSource === "model" ? (
-              <>
-                <Sparkles className="size-3.5 text-ai" aria-hidden /> AI-written summary of the validated assessments
-              </>
-            ) : (
-              <>
-                <Info className="size-3.5" aria-hidden /> Rule-based summary
-              </>
-            )}
-          </p>
-          <p className="text-[15px] leading-relaxed">{explanation}</p>
-        </div>
-      )}
-
-      {reasons.length > 0 && (
-        <div className="mt-4">
-          <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Why this verdict</p>
-          <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm">
-            {reasons.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {summary.retrieved_passages !== undefined && (
-        <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-px border-y border-rule bg-rule sm:grid-cols-4">
           <SummaryStat label="Passages retrieved" value={summary.retrieved_passages} />
           <SummaryStat label="Relevant passages" value={summary.relevant_passages} />
           <SummaryStat label="Decisive passages" value={summary.decisive_passages} hint="Direct, moderate-or-strong, and not background or cited prior work." />
@@ -68,15 +54,58 @@ export function VerdictPanel({
           />
         </dl>
       )}
+
+      {(reasons.length > 0 || explanation) && (
+        <div className="grid gap-px bg-rule md:grid-cols-2">
+          {reasons.length > 0 && (
+            <div className="bg-card px-6 py-4">
+              <p className="eyebrow inline-flex items-center gap-1.5 text-academic">
+                <ListChecks className="size-3.5" aria-hidden /> Why this verdict · deterministic rules
+              </p>
+              <ul className="mt-2 space-y-1.5 text-sm leading-relaxed">
+                {reasons.map((r) => (
+                  <li key={r} className="flex gap-2">
+                    <span aria-hidden className="mt-2 size-1 shrink-0 rounded-full bg-academic" />
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {explanation && (
+            <div className={cn("bg-card px-6 py-4", !reasons.length && "md:col-span-2")}>
+              <p className={cn("eyebrow inline-flex items-center gap-1.5", explanationSource === "model" && "text-ai")}>
+                {explanationSource === "model" ? (
+                  <>
+                    <Sparkles className="size-3.5" aria-hidden /> AI-written summary of the validated assessments
+                  </>
+                ) : (
+                  <>
+                    <Info className="size-3.5" aria-hidden /> Rule-based summary
+                  </>
+                )}
+              </p>
+              <p
+                className={cn(
+                  "mt-2 text-[14.5px] leading-relaxed",
+                  explanationSource === "model" && "rounded-md border border-dashed border-ai/35 bg-mixed-soft/30 p-3",
+                )}
+              >
+                {explanation}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
 
 function SummaryStat({ label, value, hint }: { label: string; value: number | string | undefined; hint?: string }) {
   return (
-    <div className="rounded-lg bg-card/80 px-3 py-2" title={hint}>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-lg font-semibold">{value ?? "—"}</dd>
+    <div className="bg-card px-5 py-3" title={hint}>
+      <dt className="eyebrow text-[10px]">{label}</dt>
+      <dd className="tabular mt-0.5 font-mono text-lg font-semibold text-academic">{value ?? "—"}</dd>
     </div>
   );
 }
@@ -89,9 +118,13 @@ export function MeasuresLegend() {
     ["Overall verdict", "Computed by documented, deterministic rules from validated passage assessments and independent sources."],
   ];
   return (
-    <details className="no-print rounded-xl border border-border bg-card p-4 text-sm">
-      <summary className="cursor-pointer font-medium">How to read these results</summary>
-      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+    <details className="no-print group rounded-lg border border-border bg-card text-sm shadow-panel">
+      <summary className="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 font-medium select-none">
+        How to read these results
+        <span className="eyebrow group-open:hidden">Show</span>
+        <span className="eyebrow hidden group-open:inline">Hide</span>
+      </summary>
+      <dl className="grid gap-x-6 gap-y-3 border-t border-rule px-4 py-3 sm:grid-cols-2">
         {items.map(([term, text]) => (
           <div key={term}>
             <dt className="font-medium">{term}</dt>

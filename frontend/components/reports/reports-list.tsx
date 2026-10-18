@@ -20,11 +20,12 @@ export function ReportsList() {
   return (
     <>
       <PageHeader
+        eyebrow="Output"
         title="Evidence Reports"
         description="One report per completed verification run. Reports are snapshots: re-running an investigation creates a new report."
       />
       {list.error && <ErrorState message={list.error.message} requestId={list.error.requestId} onRetry={list.reload} />}
-      {list.loading && !list.data && <Skeleton className="h-64 rounded-xl" />}
+      {list.loading && !list.data && <Skeleton className="h-64 rounded-lg" />}
       {list.data && list.data.items.length === 0 && (
         <EmptyState
           icon={FileText}
@@ -42,13 +43,13 @@ export function ReportsList() {
           <ul className="grid gap-3 md:grid-cols-2">
             {list.data.items.map((r) => (
               <li key={r.id}>
-                <Link href={`/reports/${r.id}`} className="block h-full rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40">
+                <Link href={`/reports/${r.id}`} className="block h-full rounded-lg border border-border bg-card p-4 shadow-panel transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-raised">
                   <div className="flex items-start justify-between gap-3">
                     <p className="font-medium leading-snug">{r.investigation_title}</p>
                     {r.verdict && <VerdictBadge verdict={r.verdict} />}
                   </div>
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{r.claim_text}</p>
-                  <p className="mt-2 text-xs text-muted-foreground">Assessed {formatDateTime(r.created_at)}</p>
+                  <p className="mt-3 border-t border-rule pt-2 font-mono text-[11px] text-muted-foreground">Assessed {formatDateTime(r.created_at)}</p>
                 </Link>
               </li>
             ))}
